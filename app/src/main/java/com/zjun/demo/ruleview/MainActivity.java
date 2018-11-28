@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -14,6 +15,8 @@ import com.zjun.widget.RuleView;
 import com.zjun.widget.TimeRuleView;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -78,15 +81,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         // 模拟时间段数据
-        List<TimeRuleView.TimePart> list = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            TimeRuleView.TimePart part = new TimeRuleView.TimePart();
-            part.startTime = i * 1000;
-            part.endTime = part.startTime + new Random().nextInt(1000);
-            list.add(part);
-        }
-        trvTime.setTimePartList(list);
-
+//        List<TimeRuleView.TimePart> list = new ArrayList<>();
+//        for (int i = 0; i < 10; i++) {
+//            TimeRuleView.TimePart part = new TimeRuleView.TimePart();
+//            part.startTime = i * 1000;
+//            part.endTime = part.startTime + new Random().nextInt(1000);
+//            list.add(part);
+//        }
+//        trvTime.setTimePartList(list);
+        trvInitdata();
     }
 
 
@@ -113,7 +116,8 @@ public class MainActivity extends AppCompatActivity {
                 msrvMoney.setBalance(moneyBalance);
                 isMoneySloped = false;
                 break;
-            default: break;
+            default:
+                break;
         }
     }
 
@@ -138,4 +142,34 @@ public class MainActivity extends AppCompatActivity {
         return Float.parseFloat(moneyStr);
     }
 
+    private void trvInitdata() {
+        int seekToPos = 0;
+
+        int preEndTime = 0;
+        List<TimeRuleView.TimePart> list = new ArrayList<>();
+        for (int i = 1; i < 10; i++) {
+            TimeRuleView.TimePart part = new TimeRuleView.TimePart();
+            part.startTime = preEndTime + new Random().nextInt(3600000) / 1000;
+            part.endTime = part.startTime + new Random().nextInt(3600000) / 1000;
+            list.add(part);
+
+            preEndTime = part.endTime;
+            if(i == 1){
+                seekToPos = part.startTime;
+            }
+            Log.d("TAG", i+" :  " + TimeRuleView.formatTimeHHmmss(part.startTime) + "  --  " + TimeRuleView.formatTimeHHmmss(part.endTime));
+        }
+        trvTime.setTimePartList(list);
+
+        trvTime.setCurrentTime(seekToPos);
+    }
+    private static long dayBegin(long t) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(t);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTimeInMillis();
+    }
 }

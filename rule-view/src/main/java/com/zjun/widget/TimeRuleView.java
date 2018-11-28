@@ -262,7 +262,7 @@ public class TimeRuleView extends View {
     }
 
     private void calculateValues() {
-        mCurrentDistance = currentTime / mUnitSecond * mUnitGap;
+        mCurrentDistance = (currentTime * 1.0f / mUnitSecond) * mUnitGap;
     }
 
     private void init(Context context) {
@@ -470,6 +470,7 @@ public class TimeRuleView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+
         // 背景
         canvas.drawColor(bgColor);
 
@@ -505,7 +506,24 @@ public class TimeRuleView extends View {
         int start = 0;
         float offset = mHalfWidth - mCurrentDistance;
         final int perTextCount = mPerTextCounts[mPerTextCountIndex];
-        while (start <= MAX_TIME_VALUE) {
+
+        // 修正start offset
+        if(offset < 0){
+            int step = (int)(-offset/mUnitGap);
+            if(step >= 1){
+                step = step -1;
+            }
+            start += mUnitSecond*step;
+            offset += mUnitGap*step;
+        }
+        //修正 end
+        int totalStep = (int)(mWidth/mUnitGap) + 2;
+        int endTime = start + mUnitSecond*totalStep;
+        if(endTime > MAX_TIME_VALUE){
+            endTime = MAX_TIME_VALUE;
+        }
+
+        while (start <= endTime/*MAX_TIME_VALUE*/) {
             // 刻度
             if (start % 3600 == 0) {
                 // 时刻度
